@@ -4,10 +4,12 @@ const app = require('express').Router(),
   User = require('../../../config/User'),
   Post = require('../../../config/Post')
 
+const { MYSQL_DATABASE } = process.env
+
 // GET USER GROUPS [REQ = USER]
 app.post('/get-user-groups', async (req, res) => {
   let _groups = await db.query(
-      'SELECT groups.group_id, groups.name, groups.admin, group_members.member, group_members.joined_group FROM group_members, groups WHERE group_members.member = ? AND group_members.group_id = groups.group_id ORDER BY groups.created DESC',
+      `SELECT groups.group_id, groups.name, groups.admin, group_members.member_user, group_members.joined_group FROM ${MYSQL_DATABASE}.group_members, ${MYSQL_DATABASE}.groups WHERE group_members.member_user = ? AND group_members.group_id = groups.group_id ORDER BY groups.created DESC`,
       [req.body.user]
     ),
     groups = []
@@ -63,7 +65,7 @@ app.post('/get-group-members', async (req, res) => {
   let { grp_id } = req.body,
     { id } = req.session,
     _members = await db.query(
-      'SELECT group_members.grp_member_id, group_members.group_id, group_members.member, users.username, users.firstname, users.surname, group_members.added_by, group_members.joined_group FROM group_members, users WHERE group_members.group_id = ? AND group_members.member = users.id ORDER BY group_members.joined_group DESC',
+      'SELECT group_members.grp_member_id, group_members.group_id, group_members.member_user, users.username, users.firstname, users.surname, group_members.added_by, group_members.joined_group FROM group_members, users WHERE group_members.group_id = ? AND group_members.member_user = users.id ORDER BY group_members.joined_group DESC',
       [grp_id]
     ),
     members = []

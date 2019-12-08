@@ -79,7 +79,9 @@ app.post('/edit-group', async (req, res) => {
 
 // CHECK IF GROUP IS VALID [REQ = GRP_ID]
 app.post('/is-group-valid', async (req, res) => {
-  let [{ groupCount }] = await db.query(
+  let [
+    { groupCount },
+  ] = await db.query(
     'SELECT COUNT(group_id) AS groupCount FROM groups WHERE group_id=? LIMIT 1',
     [req.body.grp_id]
   )
@@ -93,7 +95,9 @@ app.post('/get-group-details', async (req, res) => {
       'SELECT groups.group_id, groups.name, groups.bio, groups.admin, users.username AS admin_username, groups.group_type, groups.created FROM groups, users WHERE groups.group_id=? AND groups.admin = users.id',
       [grp_id]
     ),
-    [{ postsCount }] = await db.query(
+    [
+      { postsCount },
+    ] = await db.query(
       'SELECT COUNT(post_id) AS postsCount FROM posts WHERE group_id=?',
       [grp_id]
     )
@@ -121,7 +125,7 @@ app.post('/join-group', async (req, res) => {
       joined = await Group.joinedGroup(user, group),
       member = {
         group_id: group,
-        member: user,
+        member_user: user,
         added_by,
         joined_group: new Date().getTime(),
       }
@@ -181,7 +185,7 @@ app.post('/get-mutual-newest-members', async (req, res) => {
   let { grp_id } = req.body,
     mutualMembers = await Group.mutualGroupMembers(req.session.id, grp_id),
     grpMembers = await db.query(
-      'SELECT group_members.member AS user, users.username AS username FROM group_members, users WHERE group_id = ? AND group_members.member = users.id ORDER BY group_members.joined_group DESC',
+      'SELECT group_members.member_user AS user, users.username AS username FROM group_members, users WHERE group_id = ? AND group_members.member_user = users.id ORDER BY group_members.joined_group DESC',
       [grp_id]
     )
 
@@ -219,7 +223,7 @@ app.post('/change-admin', async (req, res) => {
 // GET USERS TO MAKE ADMIN [REQ = GRP_ID]
 app.post('/get-users-to-make-admin', async (req, res) => {
   let members = await db.query(
-    'SELECT group_members.grp_member_id, group_members.member, users.username, users.firstname, users.surname FROM group_members, users WHERE group_members.group_id = ? AND group_members.member = users.id AND group_members.member <> ?',
+    'SELECT group_members.grp_member_id, group_members.member_user, users.username, users.firstname, users.surname FROM group_members, users WHERE group_members.group_id = ? AND group_members.member_user = users.id AND group_members.member_user <> ?',
     [req.body.grp_id, req.session.id]
   )
   res.json(members)

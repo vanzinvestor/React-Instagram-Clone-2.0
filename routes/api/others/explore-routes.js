@@ -6,6 +6,8 @@ const app = require('express').Router(),
   Group = require('../../../config/Group'),
   _ = require('lodash')
 
+const { MYSQL_DATABASE } = process.env
+
 // USERS TO EXPLORE
 app.post('/get-users-to-explore', async (req, res) => {
   let { id } = req.session,
@@ -17,7 +19,9 @@ app.post('/get-users-to-explore', async (req, res) => {
 
   for (let u of _users) {
     let isFollowing = await User.isFollowing(id, u.id),
-      [{ followers_count }] = await db.query(
+      [
+        { followers_count },
+      ] = await db.query(
         'SELECT COUNT(follow_id) AS followers_count FROM follow_system WHERE follow_to=?',
         [u.id]
       ),
@@ -51,12 +55,14 @@ app.post('/get-photos-to-explore', async (req, res) => {
 app.post('/get-groups-to-explore', async (req, res) => {
   let { id } = req.session,
     _groups = await db.query(
-      'SELECT group_id, name, admin, created FROM groups ORDER BY RAND()'
+      `SELECT group_id, name, admin, created FROM ${MYSQL_DATABASE}.groups ORDER BY RAND()`
     ),
     groups = []
 
   for (let g of _groups) {
-    let [{ membersCount }] = await db.query(
+    let [
+        { membersCount },
+      ] = await db.query(
         'SELECT COUNT(grp_member_id) AS membersCount FROM group_members WHERE group_id=?',
         [g.group_id]
       ),

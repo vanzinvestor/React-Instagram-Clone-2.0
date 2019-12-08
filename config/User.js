@@ -216,7 +216,9 @@ const mentionUsers = async (str, session, post, when) => {
     for (let h of users) {
       let hash = h.slice(1)
       if (hash.substr(0, 1) !== '@') {
-        let [{ userCount }] = await db.query(
+        let [
+          { userCount },
+        ] = await db.query(
           'SELECT COUNT(id) AS userCount FROM users WHERE username=?',
           [hash]
         )

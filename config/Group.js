@@ -47,7 +47,7 @@ const deleteGroup = async group => {
  */
 const joinedGroup = async (user, group) => {
   let is = await db.query(
-    'SELECT COUNT(grp_member_id) AS joined FROM group_members WHERE member=? AND group_id=? LIMIT 1',
+    'SELECT COUNT(grp_member_id) AS joined FROM group_members WHERE member_user=? AND group_id=? LIMIT 1',
     [user, group]
   )
   return db.tf(is[0].joined)
@@ -64,7 +64,7 @@ const mutualGroupMembers = async (user, group) => {
       [user]
     ),
     grpMembers = await db.query(
-      'SELECT group_members.member AS user, users.username AS username FROM group_members, users WHERE group_id = ? AND group_members.member = users.id ORDER BY group_members.joined_group DESC',
+      'SELECT group_members.member_user AS user, users.username AS username FROM group_members, users WHERE group_id = ? AND group_members.member_user = users.id ORDER BY group_members.joined_group DESC',
       [group]
     ),
     mutuals = intersectionBy(myFollowings, grpMembers, 'user')

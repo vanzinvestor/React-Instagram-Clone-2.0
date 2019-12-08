@@ -19,6 +19,12 @@ const query = (q, data) => {
   })
 }
 
+const queryRand = q => {
+  return new Promise((resolve, reject) => {
+    db.query(q, (err, res) => (err ? reject(err) : resolve(res)))
+  })
+}
+
 /**
  * Common validators esp. in signup, edit-profile
  * @param {String} field
@@ -75,6 +81,7 @@ const catchError = (error, res) => {
 
 module.exports = {
   query,
+  queryRand,
   c_validator,
   toHashtag,
   tf,

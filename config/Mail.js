@@ -1,12 +1,14 @@
 // FOR MAILING
 
 const nodemailer = require('nodemailer')
-const { MAIL, MAIL_PASSWORD } = process.env
+const { MAIL, SMTP_HOST, SMTP_PORT, MAIL_USERNAME, MAIL_PASSWORD } = process.env
 
 let transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: SMTP_HOST,
+  port: SMTP_PORT,
+  secure: false, // true for 465, false for other ports
   auth: {
-    user: MAIL,
+    user: MAIL_USERNAME,
     pass: MAIL_PASSWORD,
   },
 })
